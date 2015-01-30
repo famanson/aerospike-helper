@@ -1,17 +1,20 @@
 package com.famanson.aerospike;
 
 import com.aerospike.client.AerospikeClient;
+import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.aerospike.client.Record;
 import com.aerospike.client.policy.BatchPolicy;
 import com.aerospike.client.policy.Policy;
+import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
-import com.famanson.aerospike.callback.FilteredQueryCallback;
 import com.famanson.aerospike.callback.BatchQueryCallback;
+import com.famanson.aerospike.callback.FilteredQueryCallback;
 import com.famanson.aerospike.callback.SingleQueryCallback;
 import java.util.List;
+import java.util.Map;
 
 public class AerospikeHelper {
     private AerospikeClient aerospikeClient;
@@ -65,5 +68,20 @@ public class AerospikeHelper {
                 recordSet.close();
             }
         }
+    }
+
+    public void executeSaveValue(String namespace, String setName, String keyStr, Map<String, Object> data) {
+        // Initialize policy.
+        WritePolicy policy = new WritePolicy();
+        policy.timeout = 50;  // 50 millisecond timeout.
+        Key key = new Key(namespace, setName, keyStr);
+        Bin[] bins = new Bin[data.size()];
+        int i=0;
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            Bin bin = new Bin(entry.getKey(), entry.getValue());
+            bins[i] = bin;
+            i++;
+        }
+        aerospikeClient.put(policy, key, bins);
     }
 }
