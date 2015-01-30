@@ -10,6 +10,7 @@ import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.famanson.aerospike.callback.FilteredQueryCallback;
 import com.famanson.aerospike.callback.BatchQueryCallback;
+import com.famanson.aerospike.callback.SingleQueryCallback;
 import java.util.List;
 
 public class AerospikeHelper {
@@ -37,6 +38,13 @@ public class AerospikeHelper {
         // No need to complicate things, get it straight from the key-value store
         Key key = new Key(namespace, setName, keyStr);
         return (T) aerospikeClient.get(new Policy(), key).getValue(valueName);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T executeSingleValue(String namespace, String setName, String keyStr, SingleQueryCallback<T> singleQueryCallback) {
+        // No need to complicate things, get it straight from the key-value store
+        Key key = new Key(namespace, setName, keyStr);
+        return singleQueryCallback.process(aerospikeClient.get(new Policy(), key));
     }
 
     public <T> T executeByFilters(String namespace, String setName,
