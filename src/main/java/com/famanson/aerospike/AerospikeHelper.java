@@ -9,7 +9,7 @@ import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.famanson.aerospike.callback.FilteredQueryCallback;
-import com.famanson.aerospike.callback.QueryCallback;
+import com.famanson.aerospike.callback.BatchQueryCallback;
 import java.util.List;
 
 public class AerospikeHelper {
@@ -20,7 +20,7 @@ public class AerospikeHelper {
     }
 
     public <T> T executeBatch(String namespace, String setName,
-                              List<String> keyStrList, QueryCallback<T> queryCallback) {
+                              List<String> keyStrList, BatchQueryCallback<T> batchQueryCallback) {
         // This cannot be done with AQL! Sad days...
         Key[] keys = new Key[keyStrList.size()];
         int i=0;
@@ -29,7 +29,7 @@ public class AerospikeHelper {
             i++;
         }
         Record[] records = aerospikeClient.get(new BatchPolicy(), keys);
-        return queryCallback.process(keyStrList, records);
+        return batchQueryCallback.process(keyStrList, records);
     }
 
     @SuppressWarnings("unchecked")
